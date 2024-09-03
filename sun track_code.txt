@@ -1,0 +1,106 @@
+#include <IRremote.h>
+#define ldr A0
+#define relay1 10
+#define relay2 11
+#define tsop 3
+#define led 12
+#define lights 2
+#define sw 13
+int ldr_value;
+int sw_state=0;
+
+
+IRrecv irrecv(tsop);// inbuilt function 
+decode_results results;// inbuilt function 
+
+
+void setup() {
+Serial.begin(9600);// starts the serial communication
+irrecv.enableIRIn();// turn ir sensor on for data 
+pinMode(ldr,INPUT);
+pinMode(relay1,OUTPUT);
+pinMode(relay2,OUTPUT);
+pinMode(tsop, INPUT);
+pinMode(led,OUTPUT);
+pinMode(lights,OUTPUT);
+pinMode(sw,INPUT);}
+
+void loop() {
+  if(irrecv.decode(&results))
+  Serial.println(results.value);
+  irrecv.resume();
+{
+  if (results.value == 0x1FEC03F) 
+  {
+    Serial.println("forward");
+    digitalWrite(relay1,HIGH);
+    delay(2000);
+    digitalWrite(relay1,LOW);
+    delay(2000);
+    }
+ if(results.value == 0x1FE40BF){
+  Serial.println("backward");
+  digitalWrite(relay2,HIGH);
+  delay(2000);
+  digitalWrite(relay2,LOW);
+  delay(2000);
+  }  
+  if(results.value == 0x1FE48B7)//power button
+  {
+    Serial.println("ligths on ");
+    digitalWrite(lights,HIGH);
+//    delay(3000);
+//    digitalWrite(lights,LOW);
+    }
+    if(results.value == 0x1FE58A7)
+    {
+      Serial.println("ligths off");
+      digitalWrite(lights,LOW);
+      }
+       
+      }
+      
+      
+//      
+//        else{
+// Serial.println("all off ");
+//digitalWrite(lights,LOW);
+//digitalWrite(relay1,LOW);
+//digitalWrite(relay2,LOW);
+//digitalWrite(led,LOW);
+//}
+
+ ldr_value=analogRead(ldr);
+ Serial.println(ldr_value);
+ delay(500);
+ if(ldr_value<=200)
+ {
+  Serial.println("its a day");
+  digitalWrite(relay2,HIGH);
+  delay(3000);
+  digitalWrite(relay2,LOW);
+  delay(3000);
+// delay(200);
+  }
+  if(ldr_value>=650)
+  {
+    Serial.println("its night outside");
+    digitalWrite(led,HIGH);
+  digitalWrite(relay1,HIGH);
+  delay(3000);
+  digitalWrite(relay1,LOW);
+  digitalWrite(led,LOW);
+  delay(3000);
+    }
+    
+   sw_state =digitalRead(sw);
+  if(sw_state==HIGH){
+    digitalWrite(relay1,LOW);
+    Serial.println("button pressed");
+   }
+    else{
+      Serial.println("normal");
+      }
+
+      
+}
